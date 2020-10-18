@@ -31,15 +31,9 @@ jobs:
       - name: Build (Android)
         run: flutter build apk --debug
 
-      - name: Find APK
-        id: find-apk
-        run: |
-          path=$(find **/flutter-apk -name '*-debug.apk' -type f | head -1)
-          echo "::set-output name=path::$path"
-
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ steps.find-apk.outputs.path }}
+          files: build/app/outputs/flutter-apk/app-debug.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
