@@ -35,14 +35,8 @@ jobs:
       - name: Build (Android)
         run: flutter build apk --debug
 
-      - name: Find APK
-        id: find-apk
-        run: |
-          path=$(find **/flutter-apk -name '*-debug.apk' -type f | head -1)
-          echo "::set-output name=path::$path"
-
       - name: Upload APK
         uses: actions/upload-artifact@v2
         with:
           name: apk
-          path: ${{ steps.find-apk.outputs.path }}
+          path: build/app/outputs/flutter-apk/app-debug.apk
