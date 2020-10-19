@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.0
+  flutter_dotenv: ^2.1.0
+  get_it: ^5.0.1
   provider: ^4.3.2+2
   rxdart: ^0.24.1
   intl: ^0.16.1
@@ -24,3 +26,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - .env

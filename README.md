@@ -8,6 +8,12 @@ https://github.com/aridai/FlutterQiitaApp
 
 ## 使用ライブラリ
 
+* flutter_dotenv
+  * https://pub.dev/packages/flutter_dotenv
+  * https://github.com/java-james/flutter_dotenv
+* get_it
+  * https://pub.dev/packages/get_it
+  * https://github.com/fluttercommunity/get_it
 * provider
   * https://pub.dev/packages/provider
   * https://github.com/rrousselGit/provider
