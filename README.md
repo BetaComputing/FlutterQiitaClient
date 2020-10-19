@@ -1,6 +1,6 @@
 # FlutterQiitaClient
 
-https://github.com/aridai/FlutterQiitaClient
+https://github.com/BetaComputing/FlutterQiitaClient
 
 ![image](image.gif)
 
