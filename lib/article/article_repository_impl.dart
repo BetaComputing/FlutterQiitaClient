@@ -1,5 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:flutter_qiita_client/article/article.dart';
 import 'package:flutter_qiita_client/article/article_repository.dart';
-import 'package:flutter_qiita_client/article/dummy_article.dart';
+import 'package:http/http.dart' as http;
 
 class ArticleRepositoryImpl implements ArticleRepository {
   ArticleRepositoryImpl(String token) : this._token = token;
@@ -7,14 +10,40 @@ class ArticleRepositoryImpl implements ArticleRepository {
 
   @override
   Future<ArticleSearchResult> search(String keyword) async {
-    // TODO(Someone): ちゃんと実装する。
+    final url = this._buildUrl(keyword);
+    final headers = {'Authorization': 'Bearer ${this._token}'};
 
-    print(this._token);
-    await Future<void>.delayed(const Duration(seconds: 3));
+    try {
+      final response = await http.get(url, headers: headers);
+      if (response.statusCode != 200) {
+        return ArticleSearchFailure(
+          HttpException('HTTP ${response.statusCode}'),
+        );
+      }
 
-    final dummy = Iterable.generate(3, (_) => const DummyArticle()).toList();
-    final result = ArticleSearchSuccess(dummy);
+      final list = this.parseArticleList(response.body);
 
-    return result;
+      return ArticleSearchSuccess(list);
+    } on Exception catch (ex) {
+      return ArticleSearchFailure(ex);
+    }
+  }
+
+  //  コールを行うURLを組み立てる。
+  String _buildUrl(String keyword) {
+    final encodedKeyword = Uri.encodeQueryComponent(keyword);
+    const endpoint = 'https://qiita.com/api/v2/items';
+    final params = 'page=1&per_page=20&query=title:$encodedKeyword';
+    final url = '$endpoint?$params';
+
+    return url;
+  }
+
+  //  記事リストをパースする。
+  List<Article> parseArticleList(String body) {
+    final json = (jsonDecode(body) as List).cast<Map<String, dynamic>>();
+    final list = json.map((j) => Article.fromJson(j)).toList();
+
+    return list;
   }
 }
