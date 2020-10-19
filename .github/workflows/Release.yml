@@ -1,3 +1,4 @@
+# タグがpushされたタイミングでビルドを行います。
 name: Release
 
 on:
