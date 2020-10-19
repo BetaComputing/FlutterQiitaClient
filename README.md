@@ -1,6 +1,8 @@
 # FlutterQiitaClient
 
-https://github.com/aridai/FlutterQiitaApp
+https://github.com/aridai/FlutterQiitaClient
+
+![image](image.gif)
 
 ![CI](https://github.com/aridai/FlutterQiitaApp/workflows/CI/badge.svg)
 ![Dart](https://img.shields.io/static/v1?label=language&message=Dart&color=00B4AB)
