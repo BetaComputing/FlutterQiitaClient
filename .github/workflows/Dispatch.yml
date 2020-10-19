@@ -1,3 +1,5 @@
+# workflow-dispatchの設定です。
+# リポジトリのActionsのページから任意のタイミングでビルドを行うことができます。
 name: Workflow Dispatch
 
 on:
