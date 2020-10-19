@@ -27,6 +27,15 @@ https://github.com/aridai/FlutterQiitaApp
   * https://pub.dev/packages/url_launcher
   * https://github.com/flutter/plugins/tree/master/packages/url_launcher
 
+## 環境変数
+
+プロジェクトルートに `.env` を配置してください。
+
+```
+QIITA_BEARER_TOKEN=ここにQiitaのトークンを記述
+
+```
+
 ## 開発用コマンド
 
 ### ビルド (Android)
