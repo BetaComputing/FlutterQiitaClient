@@ -8,6 +8,12 @@ https://github.com/aridai/FlutterQiitaApp
 
 ## 使用ライブラリ
 
+* provider
+  * https://pub.dev/packages/provider
+  * https://github.com/rrousselGit/provider
+* RxDart
+  * https://pub.dev/packages/rxdart
+  * https://github.com/ReactiveX/rxdart
 * Intl
   * https://github.com/flutter/plugins/tree/master/packages/url_launcher
   * https://github.com/dart-lang/intl
