@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_qiita_client/article/article.dart';
+import 'package:intl/intl.dart';
 
 class ArticleView extends StatelessWidget {
   const ArticleView(Article article) : this._article = article;
   final Article _article;
+  static final _formatter = DateFormat('yyyy/MM/dd HH:mm:ss');
 
   @override
   Widget build(BuildContext context) => Card(
@@ -80,7 +82,7 @@ class ArticleView extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                this._article.createdAt.toString(),
+                _formatter.format(this._article.createdAt),
                 textAlign: TextAlign.end,
                 style: const TextStyle(fontSize: 14.0),
               ),
