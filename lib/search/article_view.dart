@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_qiita_client/article/article.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArticleView extends StatelessWidget {
   const ArticleView(Article article) : this._article = article;
@@ -110,11 +111,14 @@ class ArticleView extends StatelessWidget {
 
   //  Cardがタップされたとき。
   Future<void> _onCardTap() async {
-    // TODO(Someone): Qiita記事への遷移を実装する。
+    await launch(this._article.url);
   }
 
   //  タグがタップされたとき。
   Future<void> _onTagTap(String tag) async {
-    // TODO(Someone): タグ検索のページへの遷移を実装する。
+    final encoded = Uri.encodeQueryComponent(tag);
+    final url = 'https://qiita.com/tags/$encoded';
+
+    await launch(url);
   }
 }
