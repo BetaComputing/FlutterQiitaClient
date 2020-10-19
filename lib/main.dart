@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_qiita_client/dependency.dart';
 import 'package:flutter_qiita_client/search/search_page.dart';
 
-void main() {
+Future<void> main() async {
+  await DotEnv().load('.env');
+  Dependency.setup();
   runApp(MyApp());
 }
 

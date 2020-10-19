@@ -1,11 +1,17 @@
 import 'package:flutter_qiita_client/article/article.dart';
-import 'package:flutter_qiita_client/article/dummy_article.dart';
+import 'package:flutter_qiita_client/article/article_repository.dart';
+import 'package:flutter_qiita_client/dependency.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchPageBloc {
-  SearchPageBloc() {
+  SearchPageBloc() : this.withDependency(Dependency.resolve());
+
+  SearchPageBloc.withDependency(ArticleRepository repository)
+      : this._repository = repository {
     this._searchEventSubject.listen((_) => this._search());
   }
+
+  final ArticleRepository _repository;
 
   final _articleListSubject = BehaviorSubject.seeded(List<Article>.empty());
   final _isFetchingSubject = BehaviorSubject.seeded(false);
@@ -42,10 +48,17 @@ class SearchPageBloc {
   Future<void> _search() async {
     this._isFetchingSubject.add(true);
 
-    // TODO(Someone): リポジトリのコールを実装する。
-    await Future<void>.delayed(const Duration(seconds: 3));
-    final dummy = Iterable.generate(20, (_) => const DummyArticle()).toList();
-    this._articleListSubject.add(dummy);
+    final result = await this._repository.search(this._keywordSubject.value);
+
+    //  成功したとき。
+    if (result is ArticleSearchSuccess) {
+      this._articleListSubject.add(result.articles);
+    }
+
+    //  失敗したとき。
+    else if (result is ArticleSearchFailure) {
+      print('ERROR: ${result.exception}');
+    }
 
     this._isFetchingSubject.add(false);
   }
