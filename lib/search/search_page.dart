@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_qiita_client/dependency.dart';
 import 'package:flutter_qiita_client/search/article_list.dart';
 import 'package:flutter_qiita_client/search/search_page_bloc.dart';
 import 'package:provider/provider.dart';
@@ -7,7 +8,7 @@ import 'package:provider/provider.dart';
 class SearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Provider<SearchPageBloc>(
-        create: (context) => SearchPageBloc(),
+        create: (context) => SearchPageBloc(Dependency.resolve()),
         dispose: (context, bloc) => bloc.dispose(),
         child: _SearchPageContent(),
       );

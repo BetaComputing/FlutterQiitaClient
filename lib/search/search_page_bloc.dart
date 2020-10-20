@@ -1,13 +1,9 @@
 import 'package:flutter_qiita_client/article/article.dart';
 import 'package:flutter_qiita_client/article/article_repository.dart';
-import 'package:flutter_qiita_client/dependency.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchPageBloc {
-  SearchPageBloc() : this.withDependency(Dependency.resolve());
-
-  SearchPageBloc.withDependency(ArticleRepository repository)
-      : this._repository = repository {
+  SearchPageBloc(ArticleRepository repository) : this._repository = repository {
     this._searchEventSubject.listen((_) => this._search());
   }
 
