@@ -4,25 +4,22 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
-  cupertino_icons: ^1.0.0
-  flutter_dotenv: ^2.1.0
-  get_it: ^5.0.1
-  provider: ^4.3.2+2
-  rxdart: ^0.24.1
-  intl: ^0.16.1
-  url_launcher: ^5.7.5
+  flutter_dotenv: ^5.0.0
+  get_it: ^7.1.4
+  provider: ^5.0.0
+  rxdart: ^0.27.1
+  intl: ^0.17.0
+  url_launcher: ^6.0.6
+  http: ^0.13.3
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
-
-  test: ^1.15.4
+  test: ^1.17.8
 
 flutter:
   uses-material-design: true

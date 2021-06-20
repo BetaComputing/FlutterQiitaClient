@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 class Dependency {
   static void setup() {
     GetIt.I.registerSingleton<String>(
-      DotEnv().env['QIITA_BEARER_TOKEN'],
+      dotenv.env['QIITA_BEARER_TOKEN']!,
       instanceName: 'QIITA_BEARER_TOKEN',
     );
     GetIt.I.registerLazySingleton<ArticleRepository>(
@@ -16,5 +16,6 @@ class Dependency {
     );
   }
 
-  static T resolve<T>({String name}) => GetIt.I.get(instanceName: name);
+  static T resolve<T extends Object>({String? name}) =>
+      GetIt.I.get<T>(instanceName: name);
 }

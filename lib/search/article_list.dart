@@ -16,9 +16,13 @@ class ArticleList extends StatelessWidget {
   Widget _buildListView(SearchPageBloc bloc) => StreamBuilder<List<Article>>(
         initialData: const [],
         stream: bloc.articleList,
-        builder: (context, snapshot) => ListView.builder(
-          itemCount: snapshot.data.length,
-          itemBuilder: (context, index) => ArticleView(snapshot.data[index]),
-        ),
+        builder: (context, snapshot) {
+          final list = snapshot.requireData;
+
+          return ListView.builder(
+            itemCount: list.length,
+            itemBuilder: (context, index) => ArticleView(list[index]),
+          );
+        },
       );
 }

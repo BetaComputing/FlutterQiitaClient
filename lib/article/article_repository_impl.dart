@@ -10,11 +10,11 @@ class ArticleRepositoryImpl implements ArticleRepository {
 
   @override
   Future<ArticleSearchResult> search(String keyword) async {
-    final url = this._buildUrl(keyword);
+    final uri = this._buildUri(keyword);
     final headers = {'Authorization': 'Bearer ${this._token}'};
 
     try {
-      final response = await http.get(url, headers: headers);
+      final response = await http.get(uri, headers: headers);
       if (response.statusCode != 200) {
         return ArticleSearchFailure(
           HttpException('HTTP ${response.statusCode}'),
@@ -29,14 +29,16 @@ class ArticleRepositoryImpl implements ArticleRepository {
     }
   }
 
-  //  コールを行うURLを組み立てる。
-  String _buildUrl(String keyword) {
+  //  コールを行うURIを組み立てる。
+  Uri _buildUri(String keyword) {
     final encodedKeyword = Uri.encodeQueryComponent(keyword);
-    const endpoint = 'https://qiita.com/api/v2/items';
-    final params = 'page=1&per_page=20&query=title:$encodedKeyword';
-    final url = '$endpoint?$params';
+    final params = <String, dynamic>{
+      'page': 1.toString(),
+      'per_page': 20.toString(),
+      'query': 'title:$encodedKeyword',
+    };
 
-    return url;
+    return Uri.https('qiita.com', 'api/v2/items', params);
   }
 
   //  記事リストをパースする。
