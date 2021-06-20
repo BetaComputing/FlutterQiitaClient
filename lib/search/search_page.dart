@@ -21,8 +21,8 @@ class _SearchPageContent extends StatelessWidget {
     final bloc = Provider.of<SearchPageBloc>(context);
 
     return Scaffold(
-      appBar: this._buildAppBar(),
-      body: this._buildBody(bloc),
+      appBar: _buildAppBar(),
+      body: _buildBody(bloc),
     );
   }
 
@@ -46,12 +46,12 @@ class _SearchPageContent extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                this._buildTextField(bloc),
-                this._buildSearchButton(bloc),
+                _buildTextField(bloc),
+                _buildSearchButton(bloc),
               ],
             ),
           ),
-          this._buildProgressIndicator(bloc),
+          _buildProgressIndicator(bloc),
           ArticleList(),
         ],
       );

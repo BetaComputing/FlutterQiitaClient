@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ArticleView extends StatelessWidget {
-  const ArticleView(Article article) : this._article = article;
+  const ArticleView(Article article) : _article = article;
   final Article _article;
   static final _formatter = DateFormat('yyyy/MM/dd HH:mm:ss');
 
@@ -13,9 +13,9 @@ class ArticleView extends StatelessWidget {
         child: InkWell(
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: this._buildContent(),
+            child: _buildContent(),
           ),
-          onTap: this._onCardTap,
+          onTap: _onCardTap,
         ),
       );
 
@@ -23,13 +23,13 @@ class ArticleView extends StatelessWidget {
   Widget _buildContent() => Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          this._buildIcon(),
+          _buildIcon(),
           Flexible(
             child: Column(
               children: [
-                this._buildTitle(),
-                this._buildTags(),
-                this._buildFooter(),
+                _buildTitle(),
+                _buildTags(),
+                _buildFooter(),
               ],
             ),
           ),
@@ -40,7 +40,7 @@ class ArticleView extends StatelessWidget {
   Widget _buildIcon() => Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Image.network(
-          this._article.authorIconUrl,
+          _article.authorIconUrl,
           width: 32.0,
           height: 32.0,
         ),
@@ -50,7 +50,7 @@ class ArticleView extends StatelessWidget {
   Widget _buildTitle() => Padding(
         padding: const EdgeInsets.fromLTRB(4.0, 8.0, 4.0, 4.0),
         child: Text(
-          this._article.title,
+          _article.title,
           style: const TextStyle(fontSize: 16.0),
         ),
       );
@@ -58,7 +58,7 @@ class ArticleView extends StatelessWidget {
   //  タグリストを構築する。
   Widget _buildTags() => Padding(
         padding: const EdgeInsets.all(4.0),
-        child: Wrap(children: this._article.tags.map(this._buildTag).toList()),
+        child: Wrap(children: _article.tags.map(_buildTag).toList()),
       );
 
   //  フッタ (いいねと作成日時) を構築する。
@@ -77,13 +77,13 @@ class ArticleView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 4.0),
               child: Text(
-                'x ${this._article.likes}',
+                'x ${_article.likes}',
                 style: const TextStyle(fontSize: 16),
               ),
             ),
             Expanded(
               child: Text(
-                _formatter.format(this._article.createdAt),
+                _formatter.format(_article.createdAt),
                 textAlign: TextAlign.end,
                 style: const TextStyle(fontSize: 14.0),
               ),
@@ -106,12 +106,12 @@ class ArticleView extends StatelessWidget {
             ),
           ),
         ),
-        onTap: () => this._onTagTap(tag),
+        onTap: () => _onTagTap(tag),
       );
 
   //  Cardがタップされたとき。
   Future<void> _onCardTap() async {
-    await launch(this._article.url);
+    await launch(_article.url);
   }
 
   //  タグがタップされたとき。

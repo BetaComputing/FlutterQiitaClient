@@ -9,7 +9,7 @@ class ArticleList extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = Provider.of<SearchPageBloc>(context);
 
-    return Expanded(child: this._buildListView(bloc));
+    return Expanded(child: _buildListView(bloc));
   }
 
   //  ListViewを構築する。
