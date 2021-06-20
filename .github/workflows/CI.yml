@@ -32,42 +32,40 @@ jobs:
         uses: subosito/flutter-action@v1
         with:
           channel: 'stable'
-          flutter-version: '1.22.2'
+          flutter-version: '2.2.2'
 
       - name: Check Flutter version
         run: flutter --version
 
-      - name: Restore dotenv
-        run: echo ${{ secrets.DOT_ENV }} | base64 -d > .env
-
       - name: Restore dependencies
         run: flutter pub get
 
-      - name: Build (Android)
+      - name: Build (Web)
         run: flutter build apk --debug
 
       - name: Test
         run: flutter test
 
       - name: Format
-        if: github.ref == 'refs/heads/master'
-        run: dart format --fix ./
+        if: ${{ github.event_name != 'pull_request' }}
+        run: flutter format --set-exit-if-changed ./
 
       - name: Analyze
-        if: github.ref == 'refs/heads/master'
+        if: ${{ github.event_name != 'pull_request' }}
         run: flutter analyze
 
       - name: Format and Report
-        if: github.ref != 'refs/heads/master'
-        run: dart format --fix ./ > dart_format_report.txt
+        if: ${{ github.event_name == 'pull_request' }}
+        continue-on-error: true
+        run: flutter format ./ > flutter_format_report.txt
 
       - name: Analyze and Report
-        if: github.ref != 'refs/heads/master'
+        if: ${{ github.event_name == 'pull_request' }}
         continue-on-error: true
         run: flutter analyze > flutter_analyze_report.txt
 
       - name: Run Danger
-        if: github.ref != 'refs/heads/master'
+        if: ${{ github.event_name == 'pull_request' }}
         uses: danger/danger-js@9.1.8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
