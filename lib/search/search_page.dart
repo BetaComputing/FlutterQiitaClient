@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_qiita_client/article/article.dart';
 import 'package:flutter_qiita_client/dependency.dart';
-import 'package:flutter_qiita_client/search/article_list.dart';
+import 'package:flutter_qiita_client/search/article_view.dart';
 import 'package:flutter_qiita_client/search/search_page_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// 検索ページ
 class SearchPage extends StatelessWidget {
@@ -24,11 +27,55 @@ class SearchPage extends StatelessWidget {
   }
 }
 
+/// 検索ページのエラー種類
+enum ErrorType {
+  /// クライアント側のエラー
+  clientError,
+
+  /// サーバ側のエラー
+  serverError,
+}
+
 //  検索ページの実装
-class _SearchPage extends StatelessWidget {
+class _SearchPage extends StatefulWidget {
   const _SearchPage(this.bloc);
 
   final SearchPageBloc bloc;
+
+  @override
+  State<StatefulWidget> createState() => _SearchPageState();
+}
+
+//  検索ページの実装のState
+class _SearchPageState extends State<_SearchPage> {
+  //  読み込み中のインジケータ
+  static const _loadingIndicator = Center(child: CircularProgressIndicator());
+
+  //  BLoCへのショートカット
+  SearchPageBloc get bloc => widget.bloc;
+
+  //  Streamの購読のまとまり
+  final compositeSubscription = CompositeSubscription();
+
+  //  キーワードのコントローラ
+  late final TextEditingController keywordController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    keywordController = TextEditingController();
+
+    //  検索キーワードを購読する。
+    bloc.keyword.listen((text) {
+      keywordController.value = keywordController.value.copyWith(text: text);
+    }).addTo(compositeSubscription);
+
+    //  エラーを購読する。
+    bloc.error.listen((error) {
+      _showErrorSnackBar(error);
+    }).addTo(compositeSubscription);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +85,13 @@ class _SearchPage extends StatelessWidget {
     );
   }
 
+  @override
+  void dispose() {
+    keywordController.dispose();
+    compositeSubscription.dispose();
+    super.dispose();
+  }
+
   //  アプリバーを生成する。
   AppBar _buildAppBar() {
     return AppBar(
@@ -45,6 +99,7 @@ class _SearchPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: const [
           FlutterLogo(),
+          SizedBox(width: 4),
           Text('Flutter Qiita Clinet'),
         ],
       ),
@@ -55,65 +110,158 @@ class _SearchPage extends StatelessWidget {
   //  ボディ部分を生成する。
   Widget _buildBody() {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        //  キーワード入力フィールド
         Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              _buildTextField(bloc),
-              _buildSearchButton(bloc),
-            ],
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: _buildKeywordField(),
+        ),
+        Expanded(
+          child: StreamBuilder<bool>(
+            initialData: true,
+            stream: bloc.isLoading,
+            builder: (context, snapshot) {
+              final isLoading = snapshot.requireData;
+
+              return StreamBuilder<List<Article>?>(
+                initialData: null,
+                stream: bloc.articleList,
+                builder: (context, snapshot) {
+                  final articles = snapshot.data;
+
+                  //  読み込み中の場合
+                  if (isLoading) return _loadingIndicator;
+
+                  //  メインコンテンツ部分をリフレッシュ可能にする。
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      await bloc.refresh();
+                    },
+                    child: _buildList(articles),
+                  );
+                },
+              );
+            },
           ),
         ),
-        _buildProgressIndicator(bloc),
-        Expanded(child: ArticleList(articleListStream: bloc.articleList)),
       ],
     );
   }
 
-  //  テキストフィールドを生成する。
-  Widget _buildTextField(SearchPageBloc bloc) {
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.only(left: 8.0, right: 4.0),
-        child: TextFormField(onChanged: bloc.keywordSink.add),
-      ),
+  //  キーワード入力フィールドを生成する。
+  Widget _buildKeywordField() {
+    return Row(
+      children: [
+        //  入力フィールド
+        Expanded(
+          child: TextField(
+            controller: keywordController,
+            textInputAction: TextInputAction.search,
+            decoration: const InputDecoration(hintText: '検索キーワード'),
+            onChanged: (text) => bloc.keywordSink.add(text),
+            onEditingComplete: () async {
+              await bloc.search();
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
+
+        //  検索ボタン
+        ElevatedButton(
+          onPressed: () async {
+            await bloc.search();
+          },
+          child: const Text('検索'),
+        ),
+      ],
     );
   }
 
-  //  検索ボタンを生成する。
-  Widget _buildSearchButton(SearchPageBloc bloc) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4.0, right: 8.0),
-      child: StreamBuilder<bool>(
-        initialData: false,
-        stream: bloc.isSearchButtonEnabled,
-        builder: (context, snapshot) {
-          final isEnabled = snapshot.requireData;
-          final callback = isEnabled ? () => bloc.searchEvent.add(null) : null;
+  //  検索結果のリスト部分を生成する。
+  Widget _buildList(List<Article>? articles) {
+    //  エラー発生時
+    if (articles == null) return const _ErrorMessage();
 
-          return MaterialButton(
-            child: const Text('検索'),
-            color: Colors.blue,
-            textColor: Colors.white,
-            onPressed: callback,
-          );
-        },
-      ),
-    );
-  }
+    //  リストが空の場合
+    if (articles.isEmpty) return const _EmptyMessage();
 
-  //  プログレスインジケータを生成する。
-  Widget _buildProgressIndicator(SearchPageBloc bloc) {
-    return StreamBuilder<bool>(
-      initialData: false,
-      stream: bloc.isFetching,
-      builder: (context, snapshot) {
-        final isFetching = snapshot.requireData;
+    return ListView.separated(
+      itemCount: articles.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        final article = articles[index];
 
-        return isFetching ? const LinearProgressIndicator() : Container();
+        return ArticleView(
+          article: article,
+          onCardTap: _onCardTap,
+          onTagTap: _onTagTap,
+        );
       },
+    );
+  }
+
+  //  エラー用SnackBarを表示する。
+  void _showErrorSnackBar(ErrorType error) {
+    final snackBar = SnackBar(content: Text(error.message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  //  Cardがタップされたとき。
+  Future<void> _onCardTap(Article article) async {
+    await launch(article.url);
+  }
+
+  //  タグがタップされたとき。
+  Future<void> _onTagTap(String tag) async {
+    final encoded = Uri.encodeQueryComponent(tag);
+    final url = 'https://qiita.com/tags/$encoded';
+
+    await launch(url);
+  }
+}
+
+//  ErrorTypeの拡張
+extension ErrorTypeEx on ErrorType {
+  //  エラーメッセージ
+  static const _messages = {
+    ErrorType.clientError: '記事の取得に失敗しました。\nネットワーク環境を確認してください。',
+    ErrorType.serverError: '記事の取得に失敗しました。\nしばらくして再試行してください。',
+  };
+
+  //  エラーメッセージを取得する。
+  String get message => _messages[this]!;
+}
+
+//  エラーメッセージ
+class _ErrorMessage extends StatelessWidget {
+  const _ErrorMessage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: const [
+        SizedBox(height: 64),
+        Icon(Icons.warning, size: 32),
+        SizedBox(height: 8),
+        Text('エラーが発生しました。', textAlign: TextAlign.center),
+      ],
+    );
+  }
+}
+
+//  空メッセージ
+class _EmptyMessage extends StatelessWidget {
+  const _EmptyMessage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: const [
+        SizedBox(height: 64),
+        Icon(Icons.warning, size: 32),
+        SizedBox(height: 8),
+        Text('該当記事が見つかりませんでした。', textAlign: TextAlign.center),
+      ],
     );
   }
 }

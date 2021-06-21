@@ -20,6 +20,12 @@ class ArticleView extends StatelessWidget {
   //  記事の作成日時のフォーマッタ
   static final _formatter = DateFormat('yyyy/MM/dd HH:mm:ss');
 
+  //  このWidgetのBoarder
+  static final _border = BorderRadius.circular(8);
+
+  //  記事タグのBoarder
+  static final _tagBorder = BorderRadius.circular(4);
+
   /// 表示対象の記事データ
   final Article article;
 
@@ -32,12 +38,14 @@ class ArticleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: _border),
       child: InkWell(
+        onTap: () => onCardTap(article),
+        borderRadius: _border,
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(16),
           child: _buildContent(),
         ),
-        onTap: () => onCardTap(article),
       ),
     );
   }
@@ -47,12 +55,21 @@ class ArticleView extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        //  アイコン
         _buildIcon(),
-        Flexible(
+
+        const SizedBox(width: 8),
+        Expanded(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              //  記事タイトル
               _buildTitle(),
+
+              //  記事タグ
               _buildTags(),
+
+              //  フッタ
               _buildFooter(),
             ],
           ),
@@ -63,83 +80,83 @@ class ArticleView extends StatelessWidget {
 
   //  ユーザアイコンを生成する。
   Widget _buildIcon() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Image.network(article.authorIconUrl, width: 32.0, height: 32.0),
+    const size = 32.0;
+
+    return Image.network(
+      article.authorIconUrl,
+      width: size,
+      height: size,
+      errorBuilder: (context, error, stack) => Container(
+        width: size,
+        height: size,
+        color: Colors.grey,
+      ),
     );
   }
 
   //  記事タイトルを生成する。
   Widget _buildTitle() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4.0, 8.0, 4.0, 4.0),
-      child: Text(article.title, style: const TextStyle(fontSize: 16.0)),
+    return Text(
+      article.title,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(fontSize: 16),
     );
   }
 
   //  タグリストを生成する。
   Widget _buildTags() {
+    final tags = article.tags.map(_buildTag).toList();
+
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Wrap(
-          crossAxisAlignment: WrapCrossAlignment.start,
-          alignment: WrapAlignment.start,
-          children: article.tags.map(_buildTag).toList(),
-        ),
+        padding: const EdgeInsets.all(4),
+        child: Wrap(children: tags),
       ),
     );
   }
 
   //  フッタ (いいねと作成日時) を生成する。
   Widget _buildFooter() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      child: Row(
-        children: [
-          //  いいね
-          const Padding(
-            padding: EdgeInsets.only(right: 4.0),
-            child: Icon(Icons.favorite, color: Colors.pink, size: 18),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 4.0),
-            child: Text(
-              'x ${article.likes}',
-              style: const TextStyle(fontSize: 16),
-            ),
-          ),
+    return Row(
+      children: [
+        //  いいねアイコン
+        const Icon(Icons.favorite, color: Colors.pinkAccent, size: 18),
+        const SizedBox(width: 4),
 
-          //  作成日時
-          Expanded(
-            child: Text(
-              _formatter.format(article.createdAt),
-              textAlign: TextAlign.end,
-              style: const TextStyle(fontSize: 14.0),
-            ),
+        //  いいね数
+        Text('x ${article.likes}'),
+
+        //  作成日時
+        Expanded(
+          child: Text(
+            _formatter.format(article.createdAt),
+            textAlign: TextAlign.end,
+            style: const TextStyle(fontSize: 12),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   //  タグを生成する。
   Widget _buildTag(String tag) {
-    return InkWell(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-        child: DecoratedBox(
-          decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 230, 230, 230),
-          ),
+    return Container(
+      margin: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        borderRadius: _tagBorder,
+        color: const Color.fromARGB(255, 230, 230, 230),
+      ),
+      child: Material(
+        child: InkWell(
+          onTap: () => onTagTap(tag),
+          borderRadius: _tagBorder,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-            child: Text(tag),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            child: Text(tag, style: const TextStyle(fontSize: 12)),
           ),
         ),
       ),
-      onTap: () => onTagTap(tag),
     );
   }
 }
