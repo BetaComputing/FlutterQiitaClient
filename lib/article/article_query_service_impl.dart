@@ -1,11 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:flutter_qiita_client/article/article.dart';
-import 'package:flutter_qiita_client/article/article_repository.dart';
+import 'package:flutter_qiita_client/article/article_query_service.dart';
 import 'package:http/http.dart' as http;
 
-class ArticleRepositoryImpl implements ArticleRepository {
-  ArticleRepositoryImpl(String token) : _token = token;
+//  記事のクエリサービスの実装
+class ArticleQueryServiceImpl implements ArticleQueryService {
+  ArticleQueryServiceImpl(this._token);
+
+  //  1度に取得する件数
+  static const int _perPage = 20;
+
+  //  APIのトークン
   final String _token;
 
   @override
@@ -16,16 +23,20 @@ class ArticleRepositoryImpl implements ArticleRepository {
     try {
       final response = await http.get(uri, headers: headers);
       if (response.statusCode != 200) {
-        return ArticleSearchFailure(
-          HttpException('HTTP ${response.statusCode}'),
-        );
+        throw HttpException('HttpException(${response.statusCode})', uri: uri);
       }
 
       final list = _parseArticleList(response.body);
 
-      return ArticleSearchSuccess(list);
-    } on Exception catch (ex) {
-      return ArticleSearchFailure(ex);
+      return ArticleSearchResult.success(list);
+    } on SocketException catch (e) {
+      print('クライアントエラー: $e');
+
+      return ArticleSearchResult.clientError(e);
+    } on HttpException catch (e) {
+      print('@サーバエラー: $e');
+
+      return ArticleSearchResult.serverError(e);
     }
   }
 
@@ -34,7 +45,7 @@ class ArticleRepositoryImpl implements ArticleRepository {
     final encodedKeyword = Uri.encodeQueryComponent(keyword);
     final params = <String, dynamic>{
       'page': 1.toString(),
-      'per_page': 20.toString(),
+      'per_page': _perPage.toString(),
       'query': 'title:$encodedKeyword',
     };
 
