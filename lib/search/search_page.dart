@@ -21,8 +21,8 @@ class _SearchPageContent extends StatelessWidget {
     final bloc = Provider.of<SearchPageBloc>(context);
 
     return Scaffold(
-      appBar: this._buildAppBar(),
-      body: this._buildBody(bloc),
+      appBar: _buildAppBar(),
+      body: _buildBody(bloc),
     );
   }
 
@@ -46,12 +46,12 @@ class _SearchPageContent extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                this._buildTextField(bloc),
-                this._buildSearchButton(bloc),
+                _buildTextField(bloc),
+                _buildSearchButton(bloc),
               ],
             ),
           ),
-          this._buildProgressIndicator(bloc),
+          _buildProgressIndicator(bloc),
           ArticleList(),
         ],
       );
@@ -71,8 +71,9 @@ class _SearchPageContent extends StatelessWidget {
           initialData: false,
           stream: bloc.isSearchButtonEnabled,
           builder: (context, snapshot) {
+            final isEnabled = snapshot.requireData;
             final callback =
-                snapshot.data ? () => bloc.searchEvent.add(null) : null;
+                isEnabled ? () => bloc.searchEvent.add(null) : null;
 
             return MaterialButton(
               child: const Text('検索'),
@@ -88,7 +89,10 @@ class _SearchPageContent extends StatelessWidget {
   Widget _buildProgressIndicator(SearchPageBloc bloc) => StreamBuilder<bool>(
         initialData: false,
         stream: bloc.isFetching,
-        builder: (context, snapshot) =>
-            snapshot.data ? const LinearProgressIndicator() : Container(),
+        builder: (context, snapshot) {
+          final isFetching = snapshot.requireData;
+
+          return isFetching ? const LinearProgressIndicator() : Container();
+        },
       );
 }

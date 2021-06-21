@@ -13,14 +13,14 @@ class Article {
 
   @override
   String toString() => 'Article('
-      'id=${this.id}, '
-      'url=${this.url}, '
-      'title=${this.title}, '
-      'authorId=${this.authorId}, '
-      'authorIconUrl=${this.authorIconUrl}, '
-      'createdAt=${this.createdAt}, '
-      'tags=[${this.tags.join(", ")}], '
-      'likes=${this.likes}'
+      'id=$id, '
+      'url=$url, '
+      'title=$title, '
+      'authorId=$authorId, '
+      'authorIconUrl=$authorIconUrl, '
+      'createdAt=$createdAt, '
+      'tags=[${tags.join(", ")}], '
+      'likes=$likes'
       ')';
 
   static Article fromJson(Map<String, dynamic> json) {

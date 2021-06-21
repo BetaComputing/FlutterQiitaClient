@@ -3,8 +3,8 @@ import 'package:flutter_qiita_client/article/article_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchPageBloc {
-  SearchPageBloc(ArticleRepository repository) : this._repository = repository {
-    this._searchEventSubject.listen((_) => this._search());
+  SearchPageBloc(ArticleRepository repository) : _repository = repository {
+    _searchEventSubject.listen((_) => _search());
   }
 
   final ArticleRepository _repository;
@@ -15,40 +15,40 @@ class SearchPageBloc {
   final _searchEventSubject = PublishSubject<void>();
 
   //  記事リストを通知するStream
-  Stream<List<Article>> get articleList => this._articleListSubject.stream;
+  Stream<List<Article>> get articleList => _articleListSubject.stream;
 
   //  取得中かどうかを通知するStream
-  Stream<bool> get isFetching => this._isFetchingSubject.stream;
+  Stream<bool> get isFetching => _isFetchingSubject.stream;
 
   //  検索キーワードを流すSink
-  Sink<String> get keywordSink => this._keywordSubject.sink;
+  Sink<String> get keywordSink => _keywordSubject.sink;
 
   //  検索ボタンが有効かどうかを通知するStream
   Stream<bool> get isSearchButtonEnabled => Rx.combineLatest2(
-        this._keywordSubject,
-        this.isFetching,
+        _keywordSubject,
+        isFetching,
         (String keyword, bool isFetching) => keyword.isNotEmpty && !isFetching,
       );
 
   //  検索が要求されたことを流すSink
-  Sink<void> get searchEvent => this._searchEventSubject.sink;
+  Sink<void> get searchEvent => _searchEventSubject.sink;
 
   void dispose() {
-    this._articleListSubject.close();
-    this._isFetchingSubject.close();
-    this._keywordSubject.close();
-    this._searchEventSubject.close();
+    _articleListSubject.close();
+    _isFetchingSubject.close();
+    _keywordSubject.close();
+    _searchEventSubject.close();
   }
 
   //  検索を行う。
   Future<void> _search() async {
-    this._isFetchingSubject.add(true);
+    _isFetchingSubject.add(true);
 
-    final result = await this._repository.search(this._keywordSubject.value);
+    final result = await _repository.search(_keywordSubject.value);
 
     //  成功したとき。
     if (result is ArticleSearchSuccess) {
-      this._articleListSubject.add(result.articles);
+      _articleListSubject.add(result.articles);
     }
 
     //  失敗したとき。
@@ -56,6 +56,6 @@ class SearchPageBloc {
       print('ERROR: ${result.exception}');
     }
 
-    this._isFetchingSubject.add(false);
+    _isFetchingSubject.add(false);
   }
 }

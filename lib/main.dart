@@ -4,7 +4,7 @@ import 'package:flutter_qiita_client/dependency.dart';
 import 'package:flutter_qiita_client/search/search_page.dart';
 
 Future<void> main() async {
-  await DotEnv().load('.env');
+  await dotenv.load();
   Dependency.setup();
   runApp(MyApp());
 }
