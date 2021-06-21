@@ -2,7 +2,7 @@
 
 https://github.com/BetaComputing/FlutterQiitaClient
 
-![CI](https://github.com/BetaComputing/FlutterQiitaApp/workflows/CI/badge.svg)
+![CI](https://github.com/BetaComputing/FlutterQiitaClient/workflows/CI/badge.svg)
 ![Dart](https://img.shields.io/static/v1?label=language&message=Dart&color=00B4AB)
 ![Flutter](https://img.shields.io/static/v1?label=framework&message=Flutter&color=46CAF9)
 
