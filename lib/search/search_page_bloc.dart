@@ -2,6 +2,7 @@ import 'package:flutter_qiita_client/article/article.dart';
 import 'package:flutter_qiita_client/article/article_query_service.dart';
 import 'package:rxdart/rxdart.dart';
 
+/// 検索ページのBLoC
 class SearchPageBloc {
   SearchPageBloc(this._queryService) {
     _searchEventSubject.listen((_) => _search());
@@ -14,25 +15,27 @@ class SearchPageBloc {
   final _keywordSubject = BehaviorSubject.seeded('');
   final _searchEventSubject = PublishSubject<void>();
 
-  //  記事リストを通知するStream
+  /// 記事リストを通知するStream
   Stream<List<Article>> get articleList => _articleListSubject.stream;
 
-  //  取得中かどうかを通知するStream
+  /// 取得中かどうかを通知するStream
   Stream<bool> get isFetching => _isFetchingSubject.stream;
 
-  //  検索キーワードを流すSink
+  /// 検索キーワードを流すSink
   Sink<String> get keywordSink => _keywordSubject.sink;
 
-  //  検索ボタンが有効かどうかを通知するStream
-  Stream<bool> get isSearchButtonEnabled => Rx.combineLatest2(
+  /// 検索ボタンが有効かどうかを通知するStream
+  Stream<bool> get isSearchButtonEnabled =>
+      Rx.combineLatest2<String, bool, bool>(
         _keywordSubject,
         isFetching,
-        (String keyword, bool isFetching) => keyword.isNotEmpty && !isFetching,
+        (keyword, isFetching) => keyword.isNotEmpty && !isFetching,
       );
 
-  //  検索が要求されたことを流すSink
+  /// 検索が要求されたことを流すSink
   Sink<void> get searchEvent => _searchEventSubject.sink;
 
+  /// 終了処理を行う。
   void dispose() {
     _articleListSubject.close();
     _isFetchingSubject.close();
