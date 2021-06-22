@@ -28,3 +28,7 @@ flutter:
   uses-material-design: true
   assets:
     - .env
+  fonts:
+    - family: NotoSansCJK
+      fonts:
+        - asset: fonts/NotoSansCJKjp-Regular.otf

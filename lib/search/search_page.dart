@@ -79,9 +79,17 @@ class _SearchPageState extends State<_SearchPage> {
 
   @override
   Widget build(BuildContext context) {
+    const constraints = BoxConstraints(maxWidth: 800);
+
     return Scaffold(
       appBar: _buildAppBar(),
-      body: _buildBody(),
+      body: Align(
+        alignment: Alignment.center,
+        child: ConstrainedBox(
+          constraints: constraints,
+          child: _buildBody(),
+        ),
+      ),
     );
   }
 

@@ -1,0 +1,42 @@
+# タグがpushされたタイミングでビルドを行います。
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.inputs.ref }}
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v1
+        with:
+          channel: 'stable'
+          flutter-version: '2.2.2'
+
+      - name: Check Flutter version
+        run: flutter --version
+
+      - name: Restore dotenv
+        run: echo ${{ secrets.DOT_ENV }} | base64 -d > .env
+
+      - name: Restore dependencies
+        run: flutter pub get
+
+      - name: Run build_runner
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Build (Web)
+        run: flutter build web --web-renderer canvaskit
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/web
